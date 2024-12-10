@@ -1,0 +1,37 @@
+-- Specify your friends' usernames in the "Friends" table
+local Friends = {"princessboss1233", "elleb4ackup123", "Sydneycraycray1240", "helpisneededo2"} -- Replace Friend1, Friend2 with your friends' usernames
+
+-- Configuration
+_G.HeadSize = 50 -- Size for everyone else
+_G.FriendHeadSize = 2 -- Smaller size for friends
+_G.Disabled = true
+
+-- Adjust hitboxes based on friend status
+game:GetService('RunService').RenderStepped:Connect(function()
+    if not _G.Disabled then return end
+
+    for _, player in ipairs(game:GetService('Players'):GetPlayers()) do
+        if player.Name ~= game:GetService('Players').LocalPlayer.Name then
+            pcall(function()
+                local character = player.Character
+                local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart then
+                    if table.find(Friends, player.Name) then
+                        -- Adjust hitbox for friends
+                        humanoidRootPart.Size = Vector3.new(_G.FriendHeadSize, _G.FriendHeadSize, _G.FriendHeadSize)
+                        humanoidRootPart.Transparency = 0.3
+                        humanoidRootPart.BrickColor = BrickColor.new("Lime green")
+                        humanoidRootPart.Material = "SmoothPlastic"
+                    else
+                        -- Adjust hitbox for everyone else
+                        humanoidRootPart.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
+                        humanoidRootPart.Transparency = 0.7
+                        humanoidRootPart.BrickColor = BrickColor.new("Really blue")
+                        humanoidRootPart.Material = "Neon"
+                    end
+                    humanoidRootPart.CanCollide = false
+                end
+            end)
+        end
+    end
+end)
