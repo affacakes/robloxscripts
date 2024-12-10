@@ -1,0 +1,114 @@
+-- Variables for flying
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local humanoid = character:WaitForChild("Humanoid")
+local flying = false
+local speed = 50
+local ctrl = {f = 0, b = 0, l = 0, r = 0}
+local lastCtrl = {f = 0, b = 0, l = 0, r = 0}
+
+-- Toggle flying and noclip with Q key
+local UserInputService = game:GetService("UserInputService")
+local flyingKey = Enum.KeyCode.Q
+local movementKeys = {W = Enum.KeyCode.W, S = Enum.KeyCode.S, A = Enum.KeyCode.A, D = Enum.KeyCode.D}
+
+-- Noclip variables
+local Noclip = nil
+local Clip = nil
+
+-- Functions for flying
+local bg, bv
+
+local function Fly()
+    if flying then
+        bg = Instance.new("BodyGyro", humanoidRootPart)
+        bg.P = 9e4
+        bg.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+        bg.cframe = humanoidRootPart.CFrame
+        bv = Instance.new("BodyVelocity", humanoidRootPart)
+        bv.maxForce = Vector3.new(9e9, 9e9, 9e9)
+        bv.velocity = Vector3.new(0, 0.1, 0)
+    end
+end
+
+local function StopFlying()
+    if bg then bg:Destroy() end
+    if bv then bv:Destroy() end
+    flying = false
+    humanoid.PlatformStand = false
+end
+
+local function UpdateMovement()
+    if flying then
+        bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (ctrl.f + ctrl.b)) + 
+            ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(ctrl.l + ctrl.r, (ctrl.f + ctrl.b) * 0.2, 0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p)) * speed
+        bg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((ctrl.f + ctrl.b) * 50 * speed / 1000), 0, 0)
+    end
+end
+
+-- Functions for noclip
+local function noclip()
+    Clip = false
+    local function Nocl()
+        if Clip == false and game.Players.LocalPlayer.Character ~= nil then
+            for _,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                if v:IsA('BasePart') and v.CanCollide and v.Name ~= floatName then
+                    v.CanCollide = false
+                end
+            end
+        end
+        wait(0.21) -- basic optimization
+    end
+    Noclip = game:GetService('RunService').Stepped:Connect(Nocl)
+end
+
+local function clip()
+    if Noclip then Noclip:Disconnect() end
+    Clip = true
+end
+
+-- Handle key presses
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Keyboard then
+        if input.KeyCode == flyingKey then
+            flying = not flying
+            if flying then
+                humanoid.PlatformStand = true
+                Fly()
+                noclip()  -- Start noclip when flying
+            else
+                StopFlying()
+                clip()  -- Disable noclip when not flying
+            end
+        elseif input.KeyCode == movementKeys.W then
+            ctrl.f = 1
+        elseif input.KeyCode == movementKeys.S then
+            ctrl.b = -1
+        elseif input.KeyCode == movementKeys.A then
+            ctrl.l = -1
+        elseif input.KeyCode == movementKeys.D then
+            ctrl.r = 1
+        end
+    end
+end)
+
+-- Handle key releases
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Keyboard then
+        if input.KeyCode == movementKeys.W then
+            ctrl.f = 0
+        elseif input.KeyCode == movementKeys.S then
+            ctrl.b = 0
+        elseif input.KeyCode == movementKeys.A then
+            ctrl.l = 0
+        elseif input.KeyCode == movementKeys.D then
+            ctrl.r = 0
+        end
+    end
+end)
+
+-- Update movement in game loop
+game:GetService("RunService").Heartbeat:Connect(function()
+    UpdateMovement()
+end)
