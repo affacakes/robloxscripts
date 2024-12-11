@@ -1,25 +1,18 @@
 -- Variables for flying
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-local humanoid = character:WaitForChild("Humanoid")
+local humanoidRootPart
+local humanoid
 local flying = false
 local speed = 50
 local ctrl = {f = 0, b = 0, l = 0, r = 0}
-local lastCtrl = {f = 0, b = 0, l = 0, r = 0}
-
--- Toggle flying and noclip with Q key
-local UserInputService = game:GetService("UserInputService")
-local flyingKey = Enum.KeyCode.Q
-local movementKeys = {W = Enum.KeyCode.W, S = Enum.KeyCode.S, A = Enum.KeyCode.A, D = Enum.KeyCode.D}
+local bg, bv
 
 -- Noclip variables
 local Noclip = nil
 local Clip = nil
 
 -- Functions for flying
-local bg, bv
-
 local function Fly()
     if flying then
         bg = Instance.new("BodyGyro", humanoidRootPart)
@@ -36,7 +29,9 @@ local function StopFlying()
     if bg then bg:Destroy() end
     if bv then bv:Destroy() end
     flying = false
-    humanoid.PlatformStand = false
+    if humanoid then
+        humanoid.PlatformStand = false
+    end
 end
 
 local function UpdateMovement()
@@ -51,9 +46,9 @@ end
 local function noclip()
     Clip = false
     local function Nocl()
-        if Clip == false and game.Players.LocalPlayer.Character ~= nil then
-            for _,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-                if v:IsA('BasePart') and v.CanCollide and v.Name ~= floatName then
+        if Clip == false and player.Character ~= nil then
+            for _,v in pairs(player.Character:GetDescendants()) do
+                if v:IsA('BasePart') and v.CanCollide then
                     v.CanCollide = false
                 end
             end
@@ -69,40 +64,40 @@ local function clip()
 end
 
 -- Handle key presses
+local UserInputService = game:GetService("UserInputService")
 UserInputService.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Keyboard then
-        if input.KeyCode == flyingKey then
+        if input.KeyCode == Enum.KeyCode.Q then
             flying = not flying
             if flying then
                 humanoid.PlatformStand = true
                 Fly()
-                noclip()  -- Start noclip when flying
+                noclip() -- Enable noclip when flying
             else
                 StopFlying()
-                clip()  -- Disable noclip when not flying
+                clip() -- Disable noclip when not flying
             end
-        elseif input.KeyCode == movementKeys.W then
+        elseif input.KeyCode == Enum.KeyCode.W then
             ctrl.f = 1
-        elseif input.KeyCode == movementKeys.S then
+        elseif input.KeyCode == Enum.KeyCode.S then
             ctrl.b = -1
-        elseif input.KeyCode == movementKeys.A then
+        elseif input.KeyCode == Enum.KeyCode.A then
             ctrl.l = -1
-        elseif input.KeyCode == movementKeys.D then
+        elseif input.KeyCode == Enum.KeyCode.D then
             ctrl.r = 1
         end
     end
 end)
 
--- Handle key releases
 UserInputService.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Keyboard then
-        if input.KeyCode == movementKeys.W then
+        if input.KeyCode == Enum.KeyCode.W then
             ctrl.f = 0
-        elseif input.KeyCode == movementKeys.S then
+        elseif input.KeyCode == Enum.KeyCode.S then
             ctrl.b = 0
-        elseif input.KeyCode == movementKeys.A then
+        elseif input.KeyCode == Enum.KeyCode.A then
             ctrl.l = 0
-        elseif input.KeyCode == movementKeys.D then
+        elseif input.KeyCode == Enum.KeyCode.D then
             ctrl.r = 0
         end
     end
@@ -112,3 +107,17 @@ end)
 game:GetService("RunService").Heartbeat:Connect(function()
     UpdateMovement()
 end)
+
+-- Handle character respawn
+local function OnCharacterAdded(newCharacter)
+    character = newCharacter
+    humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    humanoid = character:WaitForChild("Humanoid")
+    StopFlying() -- Reset flying state
+    clip() -- Reset noclip state
+end
+
+player.CharacterAdded:Connect(OnCharacterAdded)
+
+-- Initialize on script load
+OnCharacterAdded(character)
