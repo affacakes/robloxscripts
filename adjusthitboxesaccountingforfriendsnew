@@ -1,5 +1,5 @@
 -- Specify your friends' usernames in the "Friends" table
-local Friends = {"princessboss1233", "elleb4ackup123", "bblbbclove", "helpisneededo2", "iheartdogsxx2", "Sydneycraycray1240"} -- Replace Friend1, Friend2 with your friends' usernames
+local Friends = {"princessboss1233", "elleb4ackup123", "bblbbclove", "helpisneededo2", "iheartdogsxx2", "Sydneycraycray1240", "Venx900"} -- Replace Friend1, Friend2 with your friends' usernames
 
 -- Configuration
 _G.HeadSize = 50 -- Size for everyone else
