@@ -1,16 +1,18 @@
 -- Specify your friends' usernames in the "Friends" table
-local Friends = {"princessboss1233", "elleb4ackup123", "bblbbclove", "helpisneededo2", "iheartdogsxx2", "Sydneycraycray1240", "Venx900", "itsyouregirldemi55"} -- Replace Friend1, Friend2 with your friends' usernames
+local Friends = {"princessboss1233", "elleb4ackup123", "bblbbclove", "helpisneededo2", "iheartdogsxx2", "Sydneycraycray1240", "Venx900", "itsyouregirldemi55", "Billybobjrgaming7", "FirceGirl3"} -- Replace Friend1, Friend2 with your friends' usernames
 
 _G.HeadSize = 50 -- Size for everyone else
 _G.FriendHeadSize = 2 -- Smaller size for friends
+_G.SmallHeadSize = 2 -- Size for normal players when Z is toggled
 _G.Disabled = true
 _G.FriendsHitboxSmall = true -- Toggle state for friends' hitbox size
+_G.NormalPlayersSmall = false -- Toggle state for normal players' hitbox size
 
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 
 -- GitHub raw URL of the script
-local ScriptURL = "https://raw.githubusercontent.com/affacakes/robloxscripts/main/adjusthitboxesaccountingforfriendsnew" -- Replace with your GitHub raw URL
+local ScriptURL = "https://raw.githubusercontent.com/YourUsername/YourRepo/main/YourScript.lua" -- Replace with your GitHub raw URL
 
 game:GetService('RunService').RenderStepped:Connect(function()
     if not _G.Disabled then return end
@@ -35,11 +37,18 @@ game:GetService('RunService').RenderStepped:Connect(function()
                             humanoidRootPart.Material = "Neon"
                         end
                     else
-                        -- Adjust hitbox for everyone else
-                        humanoidRootPart.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
-                        humanoidRootPart.Transparency = 0.7
-                        humanoidRootPart.BrickColor = BrickColor.new("Really blue")
-                        humanoidRootPart.Material = "Neon"
+                        -- Adjust hitbox for normal players based on Z toggle state
+                        if _G.NormalPlayersSmall then
+                            humanoidRootPart.Size = Vector3.new(_G.SmallHeadSize, _G.SmallHeadSize, _G.SmallHeadSize)
+                            humanoidRootPart.Transparency = 0.3
+                            humanoidRootPart.BrickColor = BrickColor.new("Really red")
+                            humanoidRootPart.Material = "SmoothPlastic"
+                        else
+                            humanoidRootPart.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
+                            humanoidRootPart.Transparency = 0.7
+                            humanoidRootPart.BrickColor = BrickColor.new("Really blue")
+                            humanoidRootPart.Material = "Neon"
+                        end
                     end
                     humanoidRootPart.CanCollide = false
                 end
@@ -48,7 +57,7 @@ game:GetService('RunService').RenderStepped:Connect(function()
     end
 end)
 
--- Toggle friends' hitbox size on key press
+-- Toggle friends' hitbox size on T key press
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     if input.KeyCode == Enum.KeyCode.T then
@@ -61,5 +70,8 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
                 loadstring(newScript)()
             end
         end)
+    elseif input.KeyCode == Enum.KeyCode.Z then
+        -- Toggle normal players' hitbox size
+        _G.NormalPlayersSmall = not _G.NormalPlayersSmall
     end
 end)
