@@ -12,7 +12,7 @@ local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 
 -- GitHub raw URL of the script
-local ScriptURL = "https://raw.githubusercontent.com/YourUsername/YourRepo/main/YourScript.lua" -- Replace with your GitHub raw URL
+local ScriptURL = "https://raw.githubusercontent.com/affacakes/robloxscripts/main/hitboxexpander.lua" -- Replace with your GitHub raw URL
 
 game:GetService('RunService').RenderStepped:Connect(function()
     if not _G.Disabled then return end
