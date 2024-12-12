@@ -4,7 +4,7 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart
 local humanoid
 local flying = false
-local speed = 50
+local speed = 70
 local ctrl = {f = 0, b = 0, l = 0, r = 0}
 local bg, bv
 
