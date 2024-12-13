@@ -10,15 +10,71 @@ _G.NormalPlayersSmall = false -- Toggle state for normal players' hitbox size
 
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
 
 -- GitHub raw URL of the script
 local ScriptURL = "https://raw.githubusercontent.com/affacakes/robloxscripts/main/hitboxexpander.lua" -- Replace with your GitHub raw URL
 
+-- Function to add a friend
+local function addFriend(username)
+    if not table.find(Friends, username) then
+        table.insert(Friends, username)
+        print(username .. " has been added to the friends list.")
+    else
+        print(username .. " is already in the friends list.")
+    end
+end
+
+-- Function to remove a friend
+local function removeFriend(username)
+    local index = table.find(Friends, username)
+    if index then
+        table.remove(Friends, index)
+        print(username .. " has been removed from the friends list.")
+    else
+        print(username .. " is not in the friends list.")
+    end
+end
+
+-- Function to display a menu for input
+local function displayMenu(promptText, callback)
+    local screenGui = Instance.new("ScreenGui", Players.LocalPlayer:WaitForChild("PlayerGui"))
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 300, 0, 150)
+    frame.Position = UDim2.new(0.5, -150, 0.5, -75)
+    frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+    local textLabel = Instance.new("TextLabel", frame)
+    textLabel.Size = UDim2.new(1, 0, 0.4, 0)
+    textLabel.Text = promptText
+    textLabel.TextColor3 = Color3.new(1, 1, 1)
+    textLabel.BackgroundTransparency = 1
+
+    local textBox = Instance.new("TextBox", frame)
+    textBox.Size = UDim2.new(0.8, 0, 0.3, 0)
+    textBox.Position = UDim2.new(0.1, 0, 0.5, 0)
+    textBox.Text = ""
+    textBox.TextColor3 = Color3.new(0, 0, 0)
+
+    local button = Instance.new("TextButton", frame)
+    button.Size = UDim2.new(0.4, 0, 0.3, 0)
+    button.Position = UDim2.new(0.3, 0, 0.8, 0)
+    button.Text = "Submit"
+
+    button.MouseButton1Click:Connect(function()
+        local input = textBox.Text
+        if input ~= "" then
+            callback(input)
+        end
+        screenGui:Destroy()
+    end)
+end
+
 game:GetService('RunService').RenderStepped:Connect(function()
     if not _G.Disabled then return end
 
-    for _, player in ipairs(game:GetService('Players'):GetPlayers()) do
-        if player.Name ~= game:GetService('Players').LocalPlayer.Name then
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Name ~= Players.LocalPlayer.Name then
             pcall(function()
                 local character = player.Character
                 local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
@@ -73,5 +129,11 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     elseif input.KeyCode == Enum.KeyCode.Z then
         -- Toggle normal players' hitbox size
         _G.NormalPlayersSmall = not _G.NormalPlayersSmall
+    elseif input.KeyCode == Enum.KeyCode.V then
+        -- Add a friend menu
+        displayMenu("Enter username to add as friend:", addFriend)
+    elseif input.KeyCode == Enum.KeyCode.X then
+        -- Remove a friend menu
+        displayMenu("Enter username to remove from friends:", removeFriend)
     end
 end)
