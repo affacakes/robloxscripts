@@ -1,150 +1,139 @@
-local Players = game:GetService("Players")
+-- Specify your friends' usernames in the "Friends" table
+local Friends = {"princessboss1233", "elleb4ackup123", "bblbbclove", "helpisneededo2", "iheartdogsxx2", "Sydneycraycray1240", "Venx900", "itsyouregirldemi55", "Billybobjrgaming7", "FirceGirl3", "vicky2010aa"} -- Replace Friend1, Friend2 with your friends' usernames
+
+_G.HeadSize = 50 -- Size for everyone else
+_G.FriendHeadSize = 2 -- Smaller size for friends
+_G.SmallHeadSize = 2 -- Size for normal players when Z is toggled
+_G.Disabled = true
+_G.FriendsHitboxSmall = true -- Toggle state for friends' hitbox size
+_G.NormalPlayersSmall = false -- Toggle state for normal players' hitbox size
+
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local TextService = game:GetService("TextService")
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
 
-local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+-- GitHub raw URL of the script
+local ScriptURL = "https://raw.githubusercontent.com/affacakes/robloxscripts/main/hitboxexpander.lua" -- Replace with your GitHub raw URL
 
-local friends = {"princessboss1233", "elleb4ackup123", "bblbbclove", "helpisneededo2", "iheartdogsxx2", "Sydneycraycray1240", "Venx900", "itsyouregirldemi55", "Billybobjrgaming7", "FirceGirl3", "vicky2010aa"}
-local GUIsOpen = {Add = false, Remove = false}
-local flightEnabled = true
+-- Function to add a friend
+local function addFriend(username)
+    if not table.find(Friends, username) then
+        table.insert(Friends, username)
+        print(username .. " has been added to the friends list.")
+    else
+        print(username .. " is already in the friends list.")
+    end
+end
 
-local function createGUI(name, placeholderText, buttonText)
-    local gui = Instance.new("ScreenGui")
-    gui.Name = name
-    gui.Parent = PlayerGui
+-- Function to remove a friend
+local function removeFriend(username)
+    local index = table.find(Friends, username)
+    if index then
+        table.remove(Friends, index)
+        print(username .. " has been removed from the friends list.")
+    else
+        print(username .. " is not in the friends list.")
+    end
+end
 
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0.3, 0, 0.2, 0)
-    frame.Position = UDim2.new(0.35, 0, 0.4, 0)
-    frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-    frame.BorderSizePixel = 0
-    frame.Parent = gui
+-- Function to display a menu for input
+local function displayMenu(promptText, callback)
+    local screenGui = Instance.new("ScreenGui", Players.LocalPlayer:WaitForChild("PlayerGui"))
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 300, 0, 150)
+    frame.Position = UDim2.new(0.5, -150, 0.5, -75)
+    frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 10)
-    corner.Parent = frame
+    local textLabel = Instance.new("TextLabel", frame)
+    textLabel.Size = UDim2.new(1, 0, 0.4, 0)
+    textLabel.Text = promptText
+    textLabel.TextColor3 = Color3.new(1, 1, 1)
+    textLabel.BackgroundTransparency = 1
 
-    local textBox = Instance.new("TextBox")
+    local textBox = Instance.new("TextBox", frame)
     textBox.Size = UDim2.new(0.8, 0, 0.3, 0)
-    textBox.Position = UDim2.new(0.1, 0, 0.2, 0)
-    textBox.PlaceholderText = placeholderText
-    textBox.BackgroundColor3 = Color3.new(0.9, 0.9, 0.9)
+    textBox.Position = UDim2.new(0.1, 0, 0.5, 0)
     textBox.Text = ""
     textBox.TextColor3 = Color3.new(0, 0, 0)
-    textBox.Parent = frame
 
-    local textCorner = Instance.new("UICorner")
-    textCorner.CornerRadius = UDim.new(0, 5)
-    textCorner.Parent = textBox
+    local button = Instance.new("TextButton", frame)
+    button.Size = UDim2.new(0.4, 0, 0.3, 0)
+    button.Position = UDim2.new(0.3, 0, 0.8, 0)
+    button.Text = "Submit"
 
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(0.4, 0, 0.2, 0)
-    button.Position = UDim2.new(0.3, 0, 0.6, 0)
-    button.Text = buttonText
-    button.BackgroundColor3 = Color3.new(0.1, 0.7, 0.1)
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.Parent = frame
-
-    local buttonCorner = Instance.new("UICorner")
-    buttonCorner.CornerRadius = UDim.new(0, 5)
-    buttonCorner.Parent = button
-
-    local closeButton = Instance.new("TextButton")
-    closeButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-    closeButton.Position = UDim2.new(0.9, -20, 0, 10)
-    closeButton.Text = "X"
-    closeButton.BackgroundColor3 = Color3.new(0.8, 0.2, 0.2)
-    closeButton.TextColor3 = Color3.new(1, 1, 1)
-    closeButton.Parent = frame
-
-    local closeCorner = Instance.new("UICorner")
-    closeCorner.CornerRadius = UDim.new(0, 5)
-    closeCorner.Parent = closeButton
-
-    return gui, frame, textBox, button, closeButton
+    button.MouseButton1Click:Connect(function()
+        local input = textBox.Text
+        if input ~= "" then
+            callback(input)
+        end
+        screenGui:Destroy()
+    end)
 end
 
-local addGUI, addFrame, addTextBox, addButton, addCloseButton = createGUI("AddFriendGUI", "Enter username...", "Add")
-local removeGUI, removeFrame, removeTextBox, removeButton, removeCloseButton = createGUI("RemoveFriendGUI", "Enter username...", "Remove")
+game:GetService('RunService').RenderStepped:Connect(function()
+    if not _G.Disabled then return end
 
-addGUI.Enabled = false
-removeGUI.Enabled = false
-
-local function toggleGUI(gui, otherGUI)
-    if gui.Enabled then
-        gui.Enabled = false
-    else
-        otherGUI.Enabled = false
-        gui.Enabled = true
-    end
-end
-
-addButton.MouseButton1Click:Connect(function()
-    local username = addTextBox.Text
-    if username ~= "" and not table.find(friends, username) then
-        table.insert(friends, username)
-        print(username .. " added to friends list.")
-    end
-end)
-
-removeButton.MouseButton1Click:Connect(function()
-    local username = removeTextBox.Text
-    if username ~= "" then
-        for i, friend in ipairs(friends) do
-            if friend == username then
-                table.remove(friends, i)
-                print(username .. " removed from friends list.")
-                break
-            end
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Name ~= Players.LocalPlayer.Name then
+            pcall(function()
+                local character = player.Character
+                local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart then
+                    if table.find(Friends, player.Name) then
+                        -- Adjust hitbox for friends based on toggle state
+                        if _G.FriendsHitboxSmall then
+                            humanoidRootPart.Size = Vector3.new(_G.FriendHeadSize, _G.FriendHeadSize, _G.FriendHeadSize)
+                            humanoidRootPart.Transparency = 0.3
+                            humanoidRootPart.BrickColor = BrickColor.new("Lime green")
+                            humanoidRootPart.Material = "SmoothPlastic"
+                        else
+                            humanoidRootPart.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
+                            humanoidRootPart.Transparency = 0.7
+                            humanoidRootPart.BrickColor = BrickColor.new("Really blue")
+                            humanoidRootPart.Material = "Neon"
+                        end
+                    else
+                        -- Adjust hitbox for normal players based on Z toggle state
+                        if _G.NormalPlayersSmall then
+                            humanoidRootPart.Size = Vector3.new(_G.SmallHeadSize, _G.SmallHeadSize, _G.SmallHeadSize)
+                            humanoidRootPart.Transparency = 0.3
+                            humanoidRootPart.BrickColor = BrickColor.new("Really red")
+                            humanoidRootPart.Material = "SmoothPlastic"
+                        else
+                            humanoidRootPart.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
+                            humanoidRootPart.Transparency = 0.7
+                            humanoidRootPart.BrickColor = BrickColor.new("Really blue")
+                            humanoidRootPart.Material = "Neon"
+                        end
+                    end
+                    humanoidRootPart.CanCollide = false
+                end
+            end)
         end
     end
 end)
 
-addCloseButton.MouseButton1Click:Connect(function()
-    addGUI.Enabled = false
-end)
-
-removeCloseButton.MouseButton1Click:Connect(function()
-    removeGUI.Enabled = false
-end)
-
+-- Toggle friends' hitbox size on T key press
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
-
-    if input.KeyCode == Enum.KeyCode.V then
-        toggleGUI(addGUI, removeGUI)
+    if input.KeyCode == Enum.KeyCode.T then
+        _G.FriendsHitboxSmall = not _G.FriendsHitboxSmall
+    elseif input.KeyCode == Enum.KeyCode.C then
+        -- Check for updates and reload script
+        pcall(function()
+            local newScript = HttpService:GetAsync(ScriptURL)
+            if newScript and newScript ~= script.Source then
+                loadstring(newScript)()
+            end
+        end)
+    elseif input.KeyCode == Enum.KeyCode.Z then
+        -- Toggle normal players' hitbox size
+        _G.NormalPlayersSmall = not _G.NormalPlayersSmall
+    elseif input.KeyCode == Enum.KeyCode.V then
+        -- Add a friend menu
+        displayMenu("Enter username to add as friend:", addFriend)
     elseif input.KeyCode == Enum.KeyCode.X then
-        toggleGUI(removeGUI, addGUI)
-    end
-end)
-
-local typingInChatOrGUI = false
-
-local function onTextBoxFocused()
-    typingInChatOrGUI = true
-end
-
-local function onTextBoxFocusLost()
-    typingInChatOrGUI = false
-end
-
-addTextBox.Focused:Connect(onTextBoxFocused)
-addTextBox.FocusLost:Connect(onTextBoxFocusLost)
-removeTextBox.Focused:Connect(onTextBoxFocused)
-removeTextBox.FocusLost:Connect(onTextBoxFocusLost)
-
-UserInputService.TextBoxFocused:Connect(function()
-    typingInChatOrGUI = true
-end)
-
-UserInputService.TextBoxFocusReleased:Connect(function()
-    typingInChatOrGUI = false
-end)
-
-RunService.RenderStepped:Connect(function()
-    if not typingInChatOrGUI then
-        -- Flight or other keybind logic goes here
+        -- Remove a friend menu
+        displayMenu("Enter username to remove from friends:", removeFriend)
     end
 end)
