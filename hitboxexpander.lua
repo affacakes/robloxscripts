@@ -1,5 +1,5 @@
 -- Specify your friends' usernames in the "Friends" table
-local Friends = {"princessboss1233", "elleb4ackup123", "bblbbclove", "helpisneededo2", "iheartdogsxx2", "Sydneycraycray1240", "Venx900", "itsyouregirldemi55", "Billybobjrgaming7", "FirceGirl3", "vicky2010aa"}
+local Friends = {"princessboss1233", "elleb4ackup123", "bblbbclove", "helpisneededo2", "iheartdogsxx2", "Sydneycraycray1240", "Venx900", "itsyouregirldemi55", "Billybobjrgaming7", "FirceGirl3", "vicky2010aa"} -- Replace Friend1, Friend2 with your friends' usernames
 
 _G.HeadSize = 50 -- Size for everyone else
 _G.FriendHeadSize = 2 -- Smaller size for friends
@@ -38,18 +38,11 @@ end
 
 -- Function to display a menu for input
 local function displayMenu(promptText, callback)
-    -- Close any existing menus before opening a new one
-    if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("FriendMenu") then
-        game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("FriendMenu"):Destroy()
-    end
-
     local screenGui = Instance.new("ScreenGui", Players.LocalPlayer:WaitForChild("PlayerGui"))
-    screenGui.Name = "FriendMenu"
     local frame = Instance.new("Frame", screenGui)
     frame.Size = UDim2.new(0, 300, 0, 150)
     frame.Position = UDim2.new(0.5, -150, 0.5, -75)
     frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    frame.BorderRadius = UDim.new(0, 10)
 
     local textLabel = Instance.new("TextLabel", frame)
     textLabel.Size = UDim2.new(1, 0, 0.4, 0)
@@ -57,68 +50,23 @@ local function displayMenu(promptText, callback)
     textLabel.TextColor3 = Color3.new(1, 1, 1)
     textLabel.BackgroundTransparency = 1
 
-    local dropdown = Instance.new("TextButton", frame)
-    dropdown.Size = UDim2.new(0.8, 0, 0.3, 0)
-    dropdown.Position = UDim2.new(0.1, 0, 0.5, 0)
-    dropdown.Text = "Select a player"
-    dropdown.TextColor3 = Color3.new(0, 0, 0)
-    dropdown.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    local textBox = Instance.new("TextBox", frame)
+    textBox.Size = UDim2.new(0.8, 0, 0.3, 0)
+    textBox.Position = UDim2.new(0.1, 0, 0.5, 0)
+    textBox.Text = ""
+    textBox.TextColor3 = Color3.new(0, 0, 0)
 
-    local submitButton = Instance.new("TextButton", frame)
-    submitButton.Size = UDim2.new(0.4, 0, 0.3, 0)
-    submitButton.Position = UDim2.new(0.3, 0, 0.8, 0)
-    submitButton.Text = "Submit"
-    submitButton.TextColor3 = Color3.new(1, 1, 1)
-    submitButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-    submitButton.Visible = false -- Hide the submit button initially
+    local button = Instance.new("TextButton", frame)
+    button.Size = UDim2.new(0.4, 0, 0.3, 0)
+    button.Position = UDim2.new(0.3, 0, 0.8, 0)
+    button.Text = "Submit"
 
-    -- Populate dropdown with player names
-    local playerNames = {}
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player.Name ~= Players.LocalPlayer.Name then
-            table.insert(playerNames, player.Name .. " (" .. (player.DisplayName or "No Display Name") .. ")")
+    button.MouseButton1Click:Connect(function()
+        local input = textBox.Text
+        if input ~= "" then
+            callback(input)
         end
-    end
-
-    -- Create dropdown options
-    for _, playerName in ipairs(playerNames) do
-        local button = Instance.new("TextButton")
-        button.Size = UDim2.new(1, 0, 0, 30)
-        button.Text = playerName
-        button.TextColor3 = Color3.new(0, 0, 0)
-        button.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
-        button.Parent = frame
-
-        button.MouseButton1Click:Connect(function()
-            dropdown.Text = playerName
-            submitButton.Visible = true -- Show the submit button when a player is selected
-        end)
-    end
-
-    -- Close button
-    local closeButton = Instance.new("TextButton", frame)
-    closeButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-    closeButton.Position = UDim2.new(1, -30, 0, 0)
-    closeButton.Text = "X"
-    closeButton.TextColor3 = Color3.new(1, 0, 0)
-    closeButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    closeButton.MouseButton1Click:Connect(function()
         screenGui:Destroy()
-    end)
-
-    submitButton.MouseButton1Click:Connect(function()
-        local selectedPlayerName = dropdown.Text
-        if selectedPlayerName ~= "Select a player" then
-            local username = selectedPlayerName:split(" ")[1]
-            if table.find(Friends, username) then
-                removeFriend(username)
-                print(username .. " has been removed from the friends list.")
-            else
-                addFriend(username)
-                print(username .. " has been added to the friends list.")
-            end
-            screenGui:Destroy()
-        end
     end)
 end
 
@@ -165,14 +113,9 @@ game:GetService('RunService').RenderStepped:Connect(function()
     end
 end)
 
--- Disable key toggles when typing in the chat
+-- Toggle friends' hitbox size on T key press
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
-    if input.UserInputType == Enum.UserInputType.Keyboard and game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Chat") then
-        _G.Disabled = true
-    else
-        _G.Disabled = false
-    end
     if input.KeyCode == Enum.KeyCode.T then
         _G.FriendsHitboxSmall = not _G.FriendsHitboxSmall
     elseif input.KeyCode == Enum.KeyCode.C then
@@ -188,9 +131,9 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         _G.NormalPlayersSmall = not _G.NormalPlayersSmall
     elseif input.KeyCode == Enum.KeyCode.V then
         -- Add a friend menu
-        displayMenu("Select a player to add as friend:", addFriend)
+        displayMenu("Enter username to add as friend:", addFriend)
     elseif input.KeyCode == Enum.KeyCode.X then
         -- Remove a friend menu
-        displayMenu("Select a player to remove from friends:", removeFriend)
+        displayMenu("Enter username to remove from friends:", removeFriend)
     end
 end)
