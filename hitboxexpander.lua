@@ -129,7 +129,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     elseif input.KeyCode == Enum.KeyCode.Z then
         -- Toggle normal players' hitbox size
         _G.NormalPlayersSmall = not _G.NormalPlayersSmall
-    elseif input.KeyCode == Enum.KeyCode.V then
+    elseif input.KeyCode == Enum.KeyCode.B then
         -- Add a friend menu
         displayMenu("Enter username to add as friend:", addFriend)
     elseif input.KeyCode == Enum.KeyCode.X then
