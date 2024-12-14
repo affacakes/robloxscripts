@@ -65,18 +65,8 @@ end
 
 -- Handle key presses
 local UserInputService = game:GetService("UserInputService")
-local ChatService = game:GetService("Chat")
-
-local function isTyping()
-    return ChatService:GetSpeaker(player.Name) and ChatService:GetSpeaker(player.Name):IsTyping()
-end
-
 UserInputService.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Keyboard then
-        if isTyping() then
-            return
-        end
-
         if input.KeyCode == Enum.KeyCode.Q then
             flying = not flying
             if flying then
