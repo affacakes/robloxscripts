@@ -7,6 +7,7 @@ _G.SmallHeadSize = 2 -- Size for normal players when Z is toggled
 _G.Disabled = true
 _G.FriendsHitboxSmall = true -- Toggle state for friends' hitbox size
 _G.NormalPlayersSmall = false -- Toggle state for normal players' hitbox size
+_G.TeamHitboxSmall = false -- Toggle state for team members' hitbox size
 
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
@@ -92,6 +93,19 @@ game:GetService('RunService').RenderStepped:Connect(function()
                             humanoidRootPart.BrickColor = BrickColor.new("Really blue")
                             humanoidRootPart.Material = "Neon"
                         end
+                    elseif player.Team == Players.LocalPlayer.Team then
+                        -- Adjust hitbox for team members based on toggle state
+                        if _G.TeamHitboxSmall then
+                            humanoidRootPart.Size = Vector3.new(_G.FriendHeadSize, _G.FriendHeadSize, _G.FriendHeadSize)
+                            humanoidRootPart.Transparency = 0.3
+                            humanoidRootPart.BrickColor = BrickColor.new("New Yeller")
+                            humanoidRootPart.Material = "SmoothPlastic"
+                        else
+                            humanoidRootPart.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
+                            humanoidRootPart.Transparency = 0.7
+                            humanoidRootPart.BrickColor = BrickColor.new("Really blue")
+                            humanoidRootPart.Material = "Neon"
+                        end
                     else
                         -- Adjust hitbox for normal players based on Z toggle state
                         if _G.NormalPlayersSmall then
@@ -135,5 +149,8 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     elseif input.KeyCode == Enum.KeyCode.X then
         -- Remove a friend menu
         displayMenu("Enter username to remove from friends:", removeFriend)
+    elseif input.KeyCode == Enum.KeyCode.H then
+        -- Toggle team members' hitbox size
+        _G.TeamHitboxSmall = not _G.TeamHitboxSmall
     end
 end)
