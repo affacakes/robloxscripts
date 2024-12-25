@@ -62,23 +62,10 @@ local function displayMenu(promptText, callback)
     button.Position = UDim2.new(0.3, 0, 0.8, 0)
     button.Text = "Submit"
 
-    local closeButton = Instance.new("TextButton", frame)
-    closeButton.Size = UDim2.new(0.2, 0, 0.2, 0)
-    closeButton.Position = UDim2.new(0.9, 0, 0, 0)
-    closeButton.Text = "X"
-    closeButton.TextColor3 = Color3.new(1, 0, 0)
-    closeButton.BackgroundTransparency = 1
-    closeButton.MouseButton1Click:Connect(function()
-        screenGui:Destroy()
-    end)
-
     button.MouseButton1Click:Connect(function()
         local input = textBox.Text
         if input ~= "" then
-            local number = tonumber(input)
-            if number then
-                callback(number)
-            end
+            callback(input)
         end
         screenGui:Destroy()
     end)
@@ -154,9 +141,8 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
             end
         end)
     elseif input.KeyCode == Enum.KeyCode.Z then
-        -- Toggle normal players and team members' hitbox size
+        -- Toggle normal players' hitbox size
         _G.NormalPlayersSmall = not _G.NormalPlayersSmall
-        _G.TeamHitboxSmall = not _G.TeamHitboxSmall
     elseif input.KeyCode == Enum.KeyCode.B then
         -- Add a friend menu
         displayMenu("Enter username to add as friend:", addFriend)
@@ -166,13 +152,5 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     elseif input.KeyCode == Enum.KeyCode.H then
         -- Toggle team members' hitbox size
         _G.TeamHitboxSmall = not _G.TeamHitboxSmall
-    elseif input.KeyCode == Enum.KeyCode.Y then
-        -- Set default head size to 15
-        _G.HeadSize = 15
-    elseif input.KeyCode == Enum.KeyCode.U then
-        -- Display GUI to prompt for default head size
-        displayMenu("Enter a number for default head size:", function(number)
-            _G.HeadSize = number
-        end)
     end
 end)
