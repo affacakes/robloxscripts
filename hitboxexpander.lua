@@ -44,6 +44,7 @@ local function displayMenu(promptText, callback)
     frame.Size = UDim2.new(0, 300, 0, 150)
     frame.Position = UDim2.new(0.5, -150, 0.5, -75)
     frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    frame.ClipsDescendants = true
 
     local textLabel = Instance.new("TextLabel", frame)
     textLabel.Size = UDim2.new(1, 0, 0.4, 0)
@@ -62,6 +63,12 @@ local function displayMenu(promptText, callback)
     button.Position = UDim2.new(0.3, 0, 0.8, 0)
     button.Text = "Submit"
 
+    local closeButton = Instance.new("TextButton", frame)
+    closeButton.Size = UDim2.new(0.1, 0, 0.2, 0)
+    closeButton.Position = UDim2.new(0.9, -10, 0, 10)
+    closeButton.Text = "X"
+    closeButton.TextColor3 = Color3.new(1, 0, 0)
+
     button.MouseButton1Click:Connect(function()
         local input = textBox.Text
         if input ~= "" then
@@ -69,11 +76,60 @@ local function displayMenu(promptText, callback)
         end
         screenGui:Destroy()
     end)
+
+    closeButton.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+    end)
 end
 
-game:GetService('RunService').RenderStepped:Connect(function()
-    if not _G.Disabled then return end
+-- Function to display a menu for setting default hitbox size
+local function displayHitboxMenu()
+    local screenGui = Instance.new("ScreenGui", Players.LocalPlayer:WaitForChild("PlayerGui"))
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 300, 0, 150)
+    frame.Position = UDim2.new(0.5, -150, 0.5, -75)
+    frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    frame.ClipsDescendants = true
 
+    local textLabel = Instance.new("TextLabel", frame)
+    textLabel.Size = UDim2.new(1, 0, 0.4, 0)
+    textLabel.Text = "Enter default hitbox size:"
+    textLabel.TextColor3 = Color3.new(1, 1, 1)
+    textLabel.BackgroundTransparency = 1
+
+    local textBox = Instance.new("TextBox", frame)
+    textBox.Size = UDim2.new(0.8, 0, 0.3, 0)
+    textBox.Position = UDim2.new(0.1, 0, 0.5, 0)
+    textBox.Text = ""
+    textBox.TextColor3 = Color3.new(0, 0, 0)
+
+    local button = Instance.new("TextButton", frame)
+    button.Size = UDim2.new(0.4, 0, 0.3, 0)
+    button.Position = UDim2.new(0.3, 0, 0.8, 0)
+    button.Text = "Submit"
+
+    local closeButton = Instance.new("TextButton", frame)
+    closeButton.Size = UDim2.new(0.1, 0, 0.2, 0)
+    closeButton.Position = UDim2.new(0.9, -10, 0, 10)
+    closeButton.Text = "X"
+    closeButton.TextColor3 = Color3.new(1, 0, 0)
+
+    button.MouseButton1Click:Connect(function()
+        local input = tonumber(textBox.Text)
+        if input and input > 0 then
+            _G.HeadSize = input
+            print("Default hitbox size set to " .. input)
+        end
+        screenGui:Destroy()
+    end)
+
+    closeButton.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+    end)
+end
+
+-- Function to adjust hitboxes for all players
+local function adjustHitboxes()
     for _, player in ipairs(Players:GetPlayers()) do
         if player.Name ~= Players.LocalPlayer.Name then
             pcall(function()
@@ -81,76 +137,65 @@ game:GetService('RunService').RenderStepped:Connect(function()
                 local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
                 if humanoidRootPart then
                     if table.find(Friends, player.Name) then
-                        -- Adjust hitbox for friends based on toggle state
-                        if _G.FriendsHitboxSmall then
-                            humanoidRootPart.Size = Vector3.new(_G.FriendHeadSize, _G.FriendHeadSize, _G.FriendHeadSize)
-                            humanoidRootPart.Transparency = 0.3
-                            humanoidRootPart.BrickColor = BrickColor.new("Lime green")
-                            humanoidRootPart.Material = "SmoothPlastic"
-                        else
-                            humanoidRootPart.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
-                            humanoidRootPart.Transparency = 0.7
-                            humanoidRootPart.BrickColor = BrickColor.new("Really blue")
-                            humanoidRootPart.Material = "Neon"
-                        end
+                        -- Adjust hitbox for friends
+                        humanoidRootPart.Size = Vector3.new(_G.FriendHeadSize, _G.FriendHeadSize, _G.FriendHeadSize)
+                        humanoidRootPart.Transparency = 0.3
+                        humanoidRootPart.BrickColor = BrickColor.new("Lime green")
+                        humanoidRootPart.Material = "SmoothPlastic"
                     elseif player.Team == Players.LocalPlayer.Team then
-                        -- Adjust hitbox for team members based on toggle state
+                        -- Adjust hitbox for teammates
                         if _G.TeamHitboxSmall then
-                            humanoidRootPart.Size = Vector3.new(_G.FriendHeadSize, _G.FriendHeadSize, _G.FriendHeadSize)
-                            humanoidRootPart.Transparency = 0.3
-                            humanoidRootPart.BrickColor = BrickColor.new("New Yeller")
-                            humanoidRootPart.Material = "SmoothPlastic"
+                            humanoidRootPart.Size = Vector3.new(_G.SmallHeadSize, _G.SmallHeadSize, _G.SmallHeadSize)
                         else
                             humanoidRootPart.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
-                            humanoidRootPart.Transparency = 0.7
-                            humanoidRootPart.BrickColor = BrickColor.new("Really blue")
-                            humanoidRootPart.Material = "Neon"
                         end
+                        humanoidRootPart.Transparency = 0.3
+                        humanoidRootPart.BrickColor = BrickColor.new("Really yellow")
+                        humanoidRootPart.Material = "SmoothPlastic"
                     else
-                        -- Adjust hitbox for normal players based on Z toggle state
+                        -- Adjust hitbox for normal players
                         if _G.NormalPlayersSmall then
                             humanoidRootPart.Size = Vector3.new(_G.SmallHeadSize, _G.SmallHeadSize, _G.SmallHeadSize)
-                            humanoidRootPart.Transparency = 0.3
-                            humanoidRootPart.BrickColor = BrickColor.new("Really red")
-                            humanoidRootPart.Material = "SmoothPlastic"
                         else
                             humanoidRootPart.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
-                            humanoidRootPart.Transparency = 0.7
-                            humanoidRootPart.BrickColor = BrickColor.new("Really blue")
-                            humanoidRootPart.Material = "Neon"
                         end
+                        humanoidRootPart.Transparency = 0.3
+                        humanoidRootPart.BrickColor = BrickColor.new("Really red")
+                        humanoidRootPart.Material = "SmoothPlastic"
                     end
                     humanoidRootPart.CanCollide = false
                 end
             end)
         end
     end
+end
+
+-- Update hitboxes every frame
+game:GetService("RunService").RenderStepped:Connect(function()
+    if not _G.Disabled then
+        adjustHitboxes()
+    end
 end)
 
--- Toggle friends' hitbox size on T key press
+-- User input handling for hotkeys
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.T then
-        _G.FriendsHitboxSmall = not _G.FriendsHitboxSmall
-    elseif input.KeyCode == Enum.KeyCode.C then
-        -- Check for updates and reload script
-        pcall(function()
-            local newScript = HttpService:GetAsync(ScriptURL)
-            if newScript and newScript ~= script.Source then
-                loadstring(newScript)()
-            end
-        end)
-    elseif input.KeyCode == Enum.KeyCode.Z then
-        -- Toggle normal players' hitbox size
-        _G.NormalPlayersSmall = not _G.NormalPlayersSmall
-    elseif input.KeyCode == Enum.KeyCode.B then
-        -- Add a friend menu
-        displayMenu("Enter username to add as friend:", addFriend)
-    elseif input.KeyCode == Enum.KeyCode.X then
-        -- Remove a friend menu
-        displayMenu("Enter username to remove from friends:", removeFriend)
-    elseif input.KeyCode == Enum.KeyCode.H then
-        -- Toggle team members' hitbox size
+
+    if input.KeyCode == Enum.KeyCode.H then
         _G.TeamHitboxSmall = not _G.TeamHitboxSmall
+        print("Team members' hitbox size toggled.")
+    elseif input.KeyCode == Enum.KeyCode.Y then
+        if _G.HeadSize == 50 then
+            _G.HeadSize = 25
+        else
+            _G.HeadSize = 50
+        end
+        print("Default hitbox size toggled to: " .. _G.HeadSize)
+    elseif input.KeyCode == Enum.KeyCode.U then
+        displayHitboxMenu()
+    elseif input.KeyCode == Enum.KeyCode.Z then
+        _G.FriendsHitboxSmall = not _G.FriendsHitboxSmall
+        _G.NormalPlayersSmall = not _G.NormalPlayersSmall
+        print("Toggled hitbox size for friends and normal players.")
     end
 end)
