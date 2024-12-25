@@ -64,7 +64,7 @@ local function displayMenu(promptText, callback)
 
     local closeButton = Instance.new("TextButton", frame)
     closeButton.Size = UDim2.new(0.2, 0, 0.2, 0)
-    closeButton.Position = UDim2.new(0.8, 0, 0, 0)
+    closeButton.Position = UDim2.new(0.9, 0, 0, 0)
     closeButton.Text = "X"
     closeButton.TextColor3 = Color3.new(1, 0, 0)
     closeButton.BackgroundTransparency = 1
@@ -75,23 +75,14 @@ local function displayMenu(promptText, callback)
     button.MouseButton1Click:Connect(function()
         local input = textBox.Text
         if input ~= "" then
-            callback(input)
+            local number = tonumber(input)
+            if number then
+                callback(number)
+            end
         end
         screenGui:Destroy()
     end)
 end
-
--- Display menu for friend removal
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.B then
-        -- Add a friend menu
-        displayMenu("Enter username to add as friend:", addFriend)
-    elseif input.KeyCode == Enum.KeyCode.X then
-        -- Remove a friend menu
-        displayMenu("Enter username to remove from friends list:", removeFriend)
-    end
-end)
 
 game:GetService('RunService').RenderStepped:Connect(function()
     if not _G.Disabled then return end
@@ -163,10 +154,25 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
             end
         end)
     elseif input.KeyCode == Enum.KeyCode.Z then
-        -- Toggle normal players' hitbox size
+        -- Toggle normal players and team members' hitbox size
         _G.NormalPlayersSmall = not _G.NormalPlayersSmall
+        _G.TeamHitboxSmall = not _G.TeamHitboxSmall
+    elseif input.KeyCode == Enum.KeyCode.B then
+        -- Add a friend menu
+        displayMenu("Enter username to add as friend:", addFriend)
+    elseif input.KeyCode == Enum.KeyCode.X then
+        -- Remove a friend menu
+        displayMenu("Enter username to remove from friends:", removeFriend)
     elseif input.KeyCode == Enum.KeyCode.H then
         -- Toggle team members' hitbox size
         _G.TeamHitboxSmall = not _G.TeamHitboxSmall
+    elseif input.KeyCode == Enum.KeyCode.Y then
+        -- Set default head size to 15
+        _G.HeadSize = 15
+    elseif input.KeyCode == Enum.KeyCode.U then
+        -- Display GUI to prompt for default head size
+        displayMenu("Enter a number for default head size:", function(number)
+            _G.HeadSize = number
+        end)
     end
 end)
