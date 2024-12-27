@@ -16,32 +16,6 @@ local Players = game:GetService("Players")
 -- GitHub raw URL of the script
 local ScriptURL = "https://raw.githubusercontent.com/affacakes/robloxscripts/main/hitboxexpander.lua" -- Replace with your GitHub raw URL
 
-local function updateHitbox(player, size, color)
-    local character = player.Character
-    if not character then return end
-    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-    if not humanoidRootPart then return end
-
-    -- Check if a hitbox already exists
-    local existingHitbox = humanoidRootPart:FindFirstChild("DummyHitbox")
-    if not existingHitbox then
-        -- Create a new dummy hitbox
-        local hitbox = Instance.new("Part")
-        hitbox.Name = "DummyHitbox"
-        hitbox.Size = Vector3.new(size, size, size)
-        hitbox.Transparency = 0.5
-        hitbox.Anchored = true
-        hitbox.CanCollide = false
-        hitbox.BrickColor = BrickColor.new(color)
-        hitbox.Material = Enum.Material.Neon
-        hitbox.Parent = humanoidRootPart
-    else
-        -- Update existing hitbox
-        existingHitbox.Size = Vector3.new(size, size, size)
-        existingHitbox.BrickColor = BrickColor.new(color)
-    end
-end
-
 -- Function to add a friend
 local function addFriend(username)
     if not table.find(Friends, username) then
@@ -103,21 +77,51 @@ game:GetService('RunService').RenderStepped:Connect(function()
     for _, player in ipairs(Players:GetPlayers()) do
         if player.Name ~= Players.LocalPlayer.Name then
             pcall(function()
-                local size = _G.HeadSize
-                local color = "Really blue"
-
-                if table.find(Friends, player.Name) and _G.FriendsHitboxSmall then
-                    size = _G.FriendHeadSize
-                    color = "Lime green"
-                elseif player.Team == Players.LocalPlayer.Team and _G.TeamHitboxSmall then
-                    size = _G.FriendHeadSize
-                    color = "New Yeller"
-                elseif _G.NormalPlayersSmall then
-                    size = _G.SmallHeadSize
-                    color = "Really red"
+                local character = player.Character
+                local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart then
+                    if table.find(Friends, player.Name) then
+                        -- Adjust hitbox for friends based on toggle state
+                        if _G.FriendsHitboxSmall then
+                            humanoidRootPart.Size = Vector3.new(_G.FriendHeadSize, _G.FriendHeadSize, _G.FriendHeadSize)
+                            humanoidRootPart.Transparency = 0.3
+                            humanoidRootPart.BrickColor = BrickColor.new("Lime green")
+                            humanoidRootPart.Material = "SmoothPlastic"
+                        else
+                            humanoidRootPart.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
+                            humanoidRootPart.Transparency = 0.7
+                            humanoidRootPart.BrickColor = BrickColor.new("Really blue")
+                            humanoidRootPart.Material = "Neon"
+                        end
+                    elseif player.Team == Players.LocalPlayer.Team then
+                        -- Adjust hitbox for team members based on toggle state
+                        if _G.TeamHitboxSmall then
+                            humanoidRootPart.Size = Vector3.new(_G.FriendHeadSize, _G.FriendHeadSize, _G.FriendHeadSize)
+                            humanoidRootPart.Transparency = 0.3
+                            humanoidRootPart.BrickColor = BrickColor.new("New Yeller")
+                            humanoidRootPart.Material = "SmoothPlastic"
+                        else
+                            humanoidRootPart.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
+                            humanoidRootPart.Transparency = 0.7
+                            humanoidRootPart.BrickColor = BrickColor.new("Really blue")
+                            humanoidRootPart.Material = "Neon"
+                        end
+                    else
+                        -- Adjust hitbox for normal players based on Z toggle state
+                        if _G.NormalPlayersSmall then
+                            humanoidRootPart.Size = Vector3.new(_G.SmallHeadSize, _G.SmallHeadSize, _G.SmallHeadSize)
+                            humanoidRootPart.Transparency = 0.3
+                            humanoidRootPart.BrickColor = BrickColor.new("Really red")
+                            humanoidRootPart.Material = "SmoothPlastic"
+                        else
+                            humanoidRootPart.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
+                            humanoidRootPart.Transparency = 0.7
+                            humanoidRootPart.BrickColor = BrickColor.new("Really blue")
+                            humanoidRootPart.Material = "Neon"
+                        end
+                    end
+                    humanoidRootPart.CanCollide = false
                 end
-
-                updateHitbox(player, size, color)
             end)
         end
     end
@@ -148,6 +152,9 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     elseif input.KeyCode == Enum.KeyCode.H then
         -- Toggle team members' hitbox size
         _G.TeamHitboxSmall = not _G.TeamHitboxSmall
+        elseif input.KeyCode == Enum.KeyCode.Z then
+        -- Toggle normal players' hitbox size
+        _G.NormalPlayersSmall = not _G.NormalPlayersSmall
     elseif input.KeyCode == Enum.KeyCode.Y then
         if _G.HeadSize == 10 then
             _G.HeadSize = 50 -- Normal size
