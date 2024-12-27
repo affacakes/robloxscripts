@@ -156,10 +156,10 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         -- Toggle normal players' hitbox size
         _G.NormalPlayersSmall = not _G.NormalPlayersSmall
     elseif input.KeyCode == Enum.KeyCode.Y then
-        if _G.HeadSize == 25 then
+        if _G.HeadSize == 10 then
             _G.HeadSize = 50 -- Normal size
         else
-            _G.HeadSize = 25
+            _G.HeadSize = 10
         end
         print("_G.HeadSize is now: " .. _G.HeadSize)
     end
