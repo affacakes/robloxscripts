@@ -152,5 +152,15 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     elseif input.KeyCode == Enum.KeyCode.H then
         -- Toggle team members' hitbox size
         _G.TeamHitboxSmall = not _G.TeamHitboxSmall
+        elseif input.KeyCode == Enum.KeyCode.Z then
+        -- Toggle normal players' hitbox size
+        _G.NormalPlayersSmall = not _G.NormalPlayersSmall
+    elseif input.KeyCode == Enum.KeyCode.Y then
+        if _G.HeadSize == 25 then
+            _G.HeadSize = 50 -- Normal size
+        else
+            _G.HeadSize = 25
+        end
+        print("_G.HeadSize is now: " .. _G.HeadSize)
     end
 end)
