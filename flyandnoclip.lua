@@ -67,7 +67,7 @@ end
 local UserInputService = game:GetService("UserInputService")
 UserInputService.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Keyboard then
-        if input.KeyCode == Enum.KeyCode.Q then
+        if input.KeyCode == Enum.KeyCode.V then
             flying = not flying
             if flying then
                 humanoid.PlatformStand = true
